@@ -40,6 +40,8 @@ if [[ ${#REPOS[@]} -eq 0 ]]; then
     exit 2
 fi
 mkdir -p "$LOG_DIR"
+# Commands run inside each repository, so every path must be absolute.
+LOG_DIR="$(cd "$LOG_DIR" && pwd)"
 
 NAMES=()
 RESULTS=()
@@ -66,7 +68,8 @@ show_log_tail() {
 }
 
 test_repo() {
-    local dir="$1" name
+    local dir name
+    dir="$(cd "$1" && pwd)" || { record "$(basename "$1")" FAIL "directory not found"; return 1; }
     name="$(basename "$dir")"
     LOG="$LOG_DIR/$name.log"
     : > "$LOG"
