@@ -1,7 +1,10 @@
 #include "capture_output.hpp"
-#include <iostream>
+#include <algorithm>
 #include <cstdlib>
 #include <filesystem>
+#include <iostream>
+#include <stdexcept>
+#include <string>
 
 void capture_output(const std::string& cmd, const std::string& outputFile) {
     std::filesystem::path outputFilePath = outputFile;

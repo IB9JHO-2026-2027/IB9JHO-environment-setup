@@ -1,0 +1,40 @@
+{
+    "version": 3,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 21,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+            "name": "clang",
+            "displayName": "Clang (IB9JHO)",
+            "description": "Debug build using Clang and Ninja. The compilers are resolved from PATH, so the same preset works on Windows, macOS and Linux once the setup script has run.",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_C_COMPILER": "clang",
+                "CMAKE_CXX_COMPILER": "clang++",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "clang",
+            "displayName": "Clang (IB9JHO)",
+            "configurePreset": "clang"
+        }
+    ],
+    "testPresets": [
+        {
+            "name": "clang",
+            "displayName": "Clang (IB9JHO)",
+            "configurePreset": "clang",
+            "output": {
+                "outputOnFailure": true
+            }
+        }
+    ]
+}

@@ -1,5 +1,7 @@
-#include <iostream>
 #include <fstream>
+#include <iostream>
+#include <iterator>
+#include <stdexcept>
 #include <string>
 
 #include "compare_files.hpp"

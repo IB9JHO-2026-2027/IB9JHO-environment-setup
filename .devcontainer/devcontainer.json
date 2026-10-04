@@ -1,13 +1,15 @@
 {
     "name": "IB9JHO Container",
     "image": "mcr.microsoft.com/devcontainers/cpp",
+    // Verify (and if necessary install) Clang, CMake and Ninja exactly as on a
+    // local machine; VS Code itself is provided by the Codespace.
+    "postCreateCommand": "bash scripts/setup-linux.sh --yes --skip-vscode --log-file /tmp/ib9jho-setup.log",
     "customizations": {
         "vscode": {
             "extensions": [
                 "ms-vscode.cpptools",
                 "ms-vscode.cpptools-extension-pack",
                 "ms-vscode.cmake-tools",
-                "twxs.cmake",
                 "brobeson.ctest-lab",
                 "github.vscode-github-actions"
             ]
