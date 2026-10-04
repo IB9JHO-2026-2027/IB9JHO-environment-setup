@@ -114,6 +114,7 @@ RESULT_STATUSES=()
 RESULT_DETAILS=()
 ADVICE=()
 CURRENT_STEP=""
+COMPILER_OK=0
 
 # Append a timestamped line to the log file only.
 log() {
@@ -595,9 +596,11 @@ step_compiler() {
     fi
 
     if [[ -n "$major" && "$major" -lt $MIN_CLANG_MAJOR ]]; then
+        COMPILER_OK=1
         warn "clang++ $version works, but Clang $MIN_CLANG_MAJOR or newer is recommended for C++20."
         advise "Consider upgrading Clang (e.g. from https://apt.llvm.org) to avoid gaps in C++20 support."
     else
+        COMPILER_OK=1
         pass "clang++ $version compiles and runs C++20 code."
     fi
 }
@@ -858,6 +861,10 @@ step_smoke_test() {
         advise "Fix the failed steps above first; this test needs CMake, Ninja and Clang."
         return 1
     fi
+    if [[ $COMPILER_OK -eq 0 ]]; then
+        fail "Not run, because Clang cannot compile programs yet (see the compiler step above)."
+        return 1
+    fi
 
     local dir="$WORK_DIR/smoke-project"
     write_smoke_project "$dir"
@@ -892,11 +899,18 @@ step_project() {
         advise "Pass the folder that contains the repository's top-level CMakeLists.txt to --project."
         return 1
     fi
-    local configure_args=(--preset clang)
+    if [[ $COMPILER_OK -eq 0 ]] || ! command -v cmake > /dev/null 2>&1; then
+        fail "Not run, because CMake or a working Clang is missing (see the steps above)."
+        return 1
+    fi
+    # Build in a temporary folder so the student's own build folder (and its
+    # cache) is never touched, even in check-only mode.
+    local build_dir="$WORK_DIR/project-build"
+    local configure_args=(--preset clang -B "$build_dir")
     if [[ ! -f "$PROJECT_DIR/CMakePresets.json" ]]; then
         warn "The project has no CMakePresets.json; using equivalent command-line settings."
         advise "Copy CMakePresets.json from the IB9JHO environment-setup repository into the project so VS Code picks Clang and Ninja automatically."
-        configure_args=(-S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++)
+        configure_args=(-S . -B "$build_dir" -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++)
     fi
     if ! (cd "$PROJECT_DIR" && run cmake "${configure_args[@]}"); then
         show_last_output 25
@@ -904,7 +918,7 @@ step_project() {
         advise_configure_failure
         return 1
     fi
-    if ! (cd "$PROJECT_DIR" && run cmake --build build); then
+    if ! (cd "$PROJECT_DIR" && run cmake --build "$build_dir"); then
         show_last_output 25
         fail "The project configured but did not build."
         advise "The tool chain works (see the end-to-end test), so this is most likely an error in the project's own code; read the compiler errors above."
