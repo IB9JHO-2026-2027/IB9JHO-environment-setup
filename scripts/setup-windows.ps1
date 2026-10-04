@@ -614,7 +614,10 @@ function Invoke-VsInstallerModify {
 
     $arguments = @('modify', '--installPath', "`"$InstallPath`"")
     if ($productId -and $channelId) { $arguments += @('--productId', $productId, '--channelId', $channelId) }
+    # The SDK is named explicitly: an existing workload's recommended
+    # components are not re-added by --includeRecommended.
     $arguments += @('--add', 'Microsoft.VisualStudio.Workload.VCTools', '--add', (Get-VcToolsComponent),
+        '--add', 'Microsoft.VisualStudio.Component.Windows11SDK.26100',
         '--includeRecommended', '--quiet', '--norestart', '--nocache')
     Write-SetupLog ('$ "{0}" {1}' -f $VsInstaller, ($arguments -join ' '))
     $started = Get-Date
@@ -669,8 +672,10 @@ function Invoke-BuildToolsStep {
         $instance = Get-VcToolsInstance
         $sdk = Get-WindowsSdkVersion
         if ($instance -and -not $sdk) {
-            # Fall back to the standalone SDK if the installer did not add one.
-            Write-Info 'Installing the standalone Windows SDK.'
+            # Fall back to the standalone SDK if the installer did not add one
+            # (it can exit successfully without changing anything).
+            Write-SetupLog 'The Visual Studio Installer did not provide a Windows SDK; falling back to the standalone SDK.'
+            Write-Info 'The Visual Studio Installer did not add the Windows SDK; installing the standalone SDK instead.'
             Install-WingetPackage 'Microsoft.WindowsSDK.10.0.26100' | Out-Null
             $sdk = Get-WindowsSdkVersion
         }
