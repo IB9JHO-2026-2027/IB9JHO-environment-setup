@@ -154,4 +154,11 @@ Common problems the script recognises and explains:
 | `'iostream' file not found` (Linux) | Clang picked a GCC version whose `libstdc++` headers are missing | The script installs `libstdc++-<N>-dev` automatically; otherwise install it by hand |
 | `Could not get lock /var/lib/dpkg/lock` (Linux) | The automatic updater is running | Wait or restart, then re-run |
 
-The scripts are tested automatically on Windows, macOS (Apple Silicon and Intel) and several Linux distributions by the *Environment setup scripts* GitHub Actions workflow, which also runs monthly to catch upstream changes.
+## Continuous integration
+
+The *Environment setup scripts* GitHub Actions workflow runs on every change to the scripts, weekly, and on demand (Actions > Environment setup scripts > Run workflow). It:
+
+- runs each setup script on Windows, macOS (Apple Silicon and Intel) and several Linux distributions, and
+- clones every lab solution (`*-solutions`) and public example repository in the organisation and builds and tests each one on Windows, macOS and Linux with the installed tool chain (`scripts/test-course-repos.sh`). Benchmarks (CTest tests whose name contains "bench") are never run. Lab starter repositories, assignments and templates are skipped, as their tests are meant to fail until students complete them.
+
+The lab solutions are private, so the workflow needs a token to clone them, stored as the repository secret `COURSE_REPOS_TOKEN`. Create a [fine-grained personal access token](https://github.com/settings/personal-access-tokens/new) with *Resource owner* set to the course organisation, *Repository access* set to *All repositories* and the *Contents: Read-only* permission. Then add it under the repository's *Settings > Secrets and variables > Actions*. Without it only the public repositories are tested and the run shows a warning.

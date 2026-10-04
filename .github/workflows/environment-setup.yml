@@ -23,9 +23,9 @@ on:
       - ".github/workflows/environment-setup.yml"
   workflow_dispatch:
   schedule:
-    # Monthly, to catch upstream changes (package renames, new compiler
-    # releases) before students hit them.
-    - cron: "0 6 1 * *"
+    # Weekly, to catch upstream changes (package renames, new compiler
+    # releases) and broken course repositories before students hit them.
+    - cron: "0 6 * * 1"
 
 permissions:
   contents: read
@@ -160,3 +160,85 @@ jobs:
         with:
           name: ${{ steps.artefact.outputs.name }}
           path: /tmp/logs/*.log
+
+  course-repositories:
+    # Clone every lab solution and example in the organisation and build and
+    # test it with the tool chain installed by the setup script, so that a
+    # broken repository (or a tool chain change that breaks one) is caught
+    # before students meet it. Benchmarks are excluded from the test runs.
+    #
+    # Private repositories (the lab solutions) need a token with read access
+    # to the organisation's repositories, stored as the COURSE_REPOS_TOKEN
+    # secret. Without it only the public repositories are tested.
+    name: Course repositories (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    env:
+      ORG: IB9JHO-2026-2027
+      GH_TOKEN: ${{ secrets.COURSE_REPOS_TOKEN || github.token }}
+      HAS_COURSE_TOKEN: ${{ secrets.COURSE_REPOS_TOKEN != '' }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Select repositories
+        # Lab solutions (*-solutions) and examples (the remaining public,
+        # non-fork repositories). Lab starter repositories, assignments,
+        # templates and tooling repositories are excluded: their tests are
+        # meant to fail until students complete them.
+        run: |
+          gh api --paginate "orgs/$ORG/repos?per_page=100&type=all" \
+            --jq '.[] | select(.fork | not) | select(.archived | not) | [.name, (.private | tostring)] | @tsv' > all-repos.tsv
+          awk -F'\t' '
+            tolower($1) ~ /(assignment|environment-setup|group-project-template|classroom)/ { next }
+            tolower($1) ~ /-solutions$/ { print $1; next }
+            tolower($1) ~ /^lab[0-9]+$/ { next }
+            $2 == "false" { print $1 }
+          ' all-repos.tsv | sort > selected-repos.txt
+          echo "Selected $(wc -l < selected-repos.txt) repositories:"
+          cat selected-repos.txt
+          if [[ "$HAS_COURSE_TOKEN" != "true" ]]; then
+            echo "::warning::COURSE_REPOS_TOKEN is not set, so private repositories (the lab solutions) are not visible and were not tested."
+          fi
+
+      - name: Clone repositories
+        run: |
+          mkdir -p course-repos
+          while read -r name; do
+            gh repo clone "$ORG/$name" "course-repos/$name" -- --depth 1 --quiet
+          done < selected-repos.txt
+
+      - name: Install the tool chain (Linux)
+        if: runner.os == 'Linux'
+        run: bash scripts/setup-linux.sh --yes --skip-vscode --log-file "$RUNNER_TEMP/setup.log"
+
+      - name: Install the tool chain (macOS)
+        if: runner.os == 'macOS'
+        run: bash scripts/setup-macos.sh --yes --skip-vscode --log-file "$RUNNER_TEMP/setup.log"
+
+      - name: Install the tool chain (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          ./scripts/setup-windows.ps1 -Yes -SkipVSCode -LogFile "$env:RUNNER_TEMP\setup.log"
+          # Make the tools found by the setup script available to later steps.
+          foreach ($tool in 'clang++', 'cmake', 'ninja') {
+              Split-Path (Get-Command $tool).Source | Out-File -Append -Encoding utf8 $env:GITHUB_PATH
+          }
+
+      - name: Build and test
+        run: bash scripts/test-course-repos.sh --log-dir course-repo-logs course-repos/*
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: course-repo-logs-${{ matrix.os }}
+          path: |
+            course-repo-logs/
+            ${{ runner.temp }}/setup.log
