@@ -170,7 +170,10 @@ function Add-Advice {
 function Invoke-Logged {
     param(
         [Parameter(Mandatory = $true)][string]$FilePath,
-        [string[]]$ArgumentList = @()
+        [string[]]$ArgumentList = @(),
+        # Also echo the output to the console (used for long installs, so the
+        # student can see that something is happening).
+        [switch]$Echo
     )
     Write-SetupLog ('$ "{0}" {1}' -f $FilePath, ($ArgumentList -join ' '))
     $previousPreference = $ErrorActionPreference
@@ -191,6 +194,9 @@ function Invoke-Logged {
             }
             $captured.Add($line)
             Add-Content -Path $LogFile -Value $line -Encoding UTF8
+            if ($Echo -and $line.Trim() -and $line -notmatch '^[\s\-\\|/]+$') {
+                Write-Host "    $line" -ForegroundColor DarkGray
+            }
         }
         $exitCode = $LASTEXITCODE
     }
@@ -367,7 +373,8 @@ function Install-WingetPackage {
     if ($Override) { $arguments += @('--override', $Override) }
 
     Write-Info "Installing $Id with WinGet (a Windows permission prompt may appear)."
-    $code = Invoke-Logged $script:WingetPath $arguments
+    Write-Info 'Large installers can run for 10-20 minutes with little or no progress shown; leave this window open.'
+    $code = Invoke-Logged $script:WingetPath $arguments -Echo
     if ($RebootCodes -contains $code) {
         $script:RestartRequired = $true
         Write-Info "$Id was installed; Windows needs a restart to finish."
@@ -598,13 +605,33 @@ function Get-WindowsSdkVersion {
 # Windows shows a permission prompt.
 function Invoke-VsInstallerModify {
     param([string]$InstallPath)
-    $arguments = @('modify', '--installPath', "`"$InstallPath`"", '--add', 'Microsoft.VisualStudio.Workload.VCTools',
-        '--add', (Get-VcToolsComponent), '--includeRecommended', '--quiet', '--norestart', '--nocache')
+    # Name the product and channel explicitly; without them the installer can
+    # fail to locate its channel feed ("Didn't find any channel feed").
+    $null = Invoke-Logged $VsWhere @('-products', '*', '-path', $InstallPath, '-property', 'productId')
+    $productId = ($script:LastOutput | Where-Object { $_ } | Select-Object -First 1)
+    $null = Invoke-Logged $VsWhere @('-products', '*', '-path', $InstallPath, '-property', 'channelId')
+    $channelId = ($script:LastOutput | Where-Object { $_ } | Select-Object -First 1)
+
+    $arguments = @('modify', '--installPath', "`"$InstallPath`"")
+    if ($productId -and $channelId) { $arguments += @('--productId', $productId, '--channelId', $channelId) }
+    $arguments += @('--add', 'Microsoft.VisualStudio.Workload.VCTools', '--add', (Get-VcToolsComponent),
+        '--includeRecommended', '--quiet', '--norestart', '--nocache')
     Write-SetupLog ('$ "{0}" {1}' -f $VsInstaller, ($arguments -join ' '))
+    $started = Get-Date
     try {
         $process = Start-Process -FilePath $VsInstaller -ArgumentList $arguments -Verb RunAs -Wait -PassThru
         Write-SetupLog "[exit status $($process.ExitCode)]"
         if ($RebootCodes -contains $process.ExitCode) { $script:RestartRequired = $true }
+        elseif ($process.ExitCode -ne 0) {
+            Write-Info "The Visual Studio Installer exited with code $($process.ExitCode)."
+            # Copy the end of the installer's own log into ours for diagnosis.
+            $installerLog = Get-ChildItem $env:TEMP -Filter 'dd_*.log' -ErrorAction SilentlyContinue |
+                Where-Object { $_.LastWriteTime -ge $started } | Sort-Object LastWriteTime | Select-Object -Last 1
+            if ($installerLog) {
+                Write-SetupLog "---- last 40 lines of $($installerLog.FullName) ----"
+                Get-Content $installerLog.FullName -Tail 40 | ForEach-Object { Add-Content -Path $LogFile -Value $_ -Encoding UTF8 }
+            }
+        }
     }
     catch {
         Write-SetupLog "Visual Studio Installer failed to start: $_"
