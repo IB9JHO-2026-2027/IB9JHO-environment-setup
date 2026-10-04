@@ -120,7 +120,7 @@ $script:RestartRequired = $false
 # Logging and result tracking
 # ----------------------------------------------------------------------------
 
-function Write-Log {
+function Write-SetupLog {
     param([string]$Message)
     $line = '[{0}] {1}' -f (Get-Date -Format 'yyyy-MM-dd HH:mm:ss'), $Message
     Add-Content -Path $LogFile -Value $line -Encoding UTF8
@@ -129,7 +129,7 @@ function Write-Log {
 function Write-Info {
     param([string]$Message)
     Write-Host "  $Message"
-    Write-Log "INFO  $Message"
+    Write-SetupLog "INFO  $Message"
 }
 
 function Start-Step {
@@ -137,9 +137,9 @@ function Start-Step {
     $script:CurrentStep = $Title
     Write-Host ''
     Write-Host "==> $Title" -ForegroundColor Cyan
-    Write-Log ('=' * 64)
-    Write-Log "STEP  $Title"
-    Write-Log ('=' * 64)
+    Write-SetupLog ('=' * 64)
+    Write-SetupLog "STEP  $Title"
+    Write-SetupLog ('=' * 64)
 }
 
 # Record the outcome of the current step. Status is PASS, WARN, FAIL or SKIP.
@@ -149,7 +149,7 @@ function Add-Result {
     Write-Host '  [' -NoNewline
     Write-Host $Status -ForegroundColor $colour -NoNewline
     Write-Host "] $Detail"
-    Write-Log "$Status  $($script:CurrentStep): $Detail"
+    Write-SetupLog "$Status  $($script:CurrentStep): $Detail"
     $script:Results.Add([pscustomobject]@{ Step = $script:CurrentStep; Status = $Status; Detail = $Detail })
 }
 
@@ -162,7 +162,7 @@ function Test-StepHasResult {
 function Add-Advice {
     param([string]$Text)
     $script:Advice.Add("[$($script:CurrentStep)] $Text")
-    Write-Log "ADVICE $Text"
+    Write-SetupLog "ADVICE $Text"
 }
 
 # Run a native command, streaming its combined output to the log file. The
@@ -172,14 +172,23 @@ function Invoke-Logged {
         [Parameter(Mandatory = $true)][string]$FilePath,
         [string[]]$ArgumentList = @()
     )
-    Write-Log ('$ "{0}" {1}' -f $FilePath, ($ArgumentList -join ' '))
+    Write-SetupLog ('$ "{0}" {1}' -f $FilePath, ($ArgumentList -join ' '))
     $previousPreference = $ErrorActionPreference
     $ErrorActionPreference = 'Continue'
     $captured = New-Object System.Collections.Generic.List[string]
     $exitCode = 0
     try {
         & $FilePath @ArgumentList 2>&1 | ForEach-Object {
-            $line = "$_"
+            # Windows PowerShell 5.1 wraps each stderr line of a native command
+            # in an ErrorRecord; recover the original text (blank lines would
+            # otherwise appear as "System.Management.Automation.RemoteException").
+            if ($_ -is [System.Management.Automation.ErrorRecord]) {
+                $line = if ($_.TargetObject -is [string]) { $_.TargetObject } else { $_.Exception.Message }
+                if ($line -eq 'System.Management.Automation.RemoteException') { $line = '' }
+            }
+            else {
+                $line = "$_"
+            }
             $captured.Add($line)
             Add-Content -Path $LogFile -Value $line -Encoding UTF8
         }
@@ -195,7 +204,7 @@ function Invoke-Logged {
     }
     if ($null -eq $exitCode) { $exitCode = 0 }
     $script:LastOutput = $captured.ToArray()
-    Write-Log "[exit status $exitCode]"
+    Write-SetupLog "[exit status $exitCode]"
     return $exitCode
 }
 
@@ -240,7 +249,7 @@ function Confirm-Action {
 function Write-ToolInventory {
     foreach ($tool in @('git', 'clang', 'clang++', 'cl', 'gcc', 'g++', 'cmake', 'ninja', 'code')) {
         $found = @(Get-Command $tool -All -CommandType Application -ErrorAction SilentlyContinue | ForEach-Object { $_.Source })
-        Write-Log ("where {0}: {1}" -f $tool, ($found -join '; '))
+        Write-SetupLog ("where {0}: {1}" -f $tool, ($found -join '; '))
     }
 }
 
@@ -276,7 +285,7 @@ function Add-UserPath {
         if ($parts -notcontains $Directory) {
             $newValue = (@($parts) + $Directory) -join ';'
             $key.SetValue('Path', $newValue, [Microsoft.Win32.RegistryValueKind]::ExpandString)
-            Write-Log "Added to user PATH: $Directory"
+            Write-SetupLog "Added to user PATH: $Directory"
         }
     }
     finally {
@@ -408,10 +417,10 @@ function Invoke-PreflightStep {
     Write-Info ("User: {0}, administrator: {1}" -f $env:USERNAME, $script:IsAdmin)
     Write-Info ("PowerShell {0}, execution policy {1}" -f $PSVersionTable.PSVersion, (Get-ExecutionPolicy))
     Write-Info ("Script: {0} {1}{2}" -f $ScriptName, $ScriptVersion, $(if ($CheckOnly) { ' (check-only mode)' } else { '' }))
-    Write-Log "PATH=$env:Path"
+    Write-SetupLog "PATH=$env:Path"
     foreach ($name in @('CC', 'CXX', 'CMAKE_GENERATOR', 'CMAKE_MAKE_PROGRAM', 'INCLUDE', 'LIB', 'VCINSTALLDIR', 'HTTP_PROXY', 'HTTPS_PROXY')) {
         $value = [Environment]::GetEnvironmentVariable($name)
-        if ($value) { Write-Log "$name=$value" }
+        if ($value) { Write-SetupLog "$name=$value" }
     }
     Write-ToolInventory
     Invoke-Logged 'netsh' @('winhttp', 'show', 'proxy') | Out-Null
@@ -455,7 +464,7 @@ function Invoke-PreflightStep {
             Write-Info 'Network: github.com is reachable.'
         }
         catch {
-            Write-Log "Network check failed: $_"
+            Write-SetupLog "Network check failed: $_"
             Add-Result WARN "Cannot reach https://github.com ($($_.Exception.Message)); installs and cloning may fail."
             Add-Advice 'Check your internet connection. On university or corporate networks, make sure the proxy is configured (Settings > Network & internet > Proxy).'
         }
@@ -483,7 +492,7 @@ function Invoke-WingetStep {
             Add-AppxPackage -RegisterByFamilyName -MainPackage 'Microsoft.DesktopAppInstaller_8wekyb3d8bbwe' -ErrorAction Stop
         }
         catch {
-            Write-Log "App Installer registration failed: $_"
+            Write-SetupLog "App Installer registration failed: $_"
         }
         $winget = Resolve-Tool 'winget' @("$env:LOCALAPPDATA\Microsoft\WindowsApps")
     }
@@ -584,39 +593,60 @@ function Get-WindowsSdkVersion {
     return $null
 }
 
+# Add the C++ workload (with its recommended components, which include the
+# Windows SDK) to an existing Visual Studio installation. Needs elevation, so
+# Windows shows a permission prompt.
+function Invoke-VsInstallerModify {
+    param([string]$InstallPath)
+    $arguments = @('modify', '--installPath', "`"$InstallPath`"", '--add', 'Microsoft.VisualStudio.Workload.VCTools',
+        '--add', (Get-VcToolsComponent), '--includeRecommended', '--quiet', '--norestart', '--nocache')
+    Write-SetupLog ('$ "{0}" {1}' -f $VsInstaller, ($arguments -join ' '))
+    try {
+        $process = Start-Process -FilePath $VsInstaller -ArgumentList $arguments -Verb RunAs -Wait -PassThru
+        Write-SetupLog "[exit status $($process.ExitCode)]"
+        if ($RebootCodes -contains $process.ExitCode) { $script:RestartRequired = $true }
+    }
+    catch {
+        Write-SetupLog "Visual Studio Installer failed to start: $_"
+        Add-Advice 'The Visual Studio Installer could not be started with administrator rights. Re-run the script and click Yes on the permission prompt (or ask an administrator to run it).'
+    }
+}
+
+$script:BuildToolsOk = $false
+
 function Invoke-BuildToolsStep {
     Start-Step 'Visual Studio Build Tools (MSVC and Windows SDK)'
 
-    $component = Get-VcToolsComponent
     $instance = Get-VcToolsInstance
-    if (-not $instance -and -not $CheckOnly) {
+    $sdk = Get-WindowsSdkVersion
+    if ((-not $instance -or -not $sdk) -and -not $CheckOnly) {
         $anyInstance = $null
         if (Test-Path $VsWhere) {
             $null = Invoke-Logged $VsWhere @('-products', '*', '-latest', '-property', 'installationPath')
             $anyInstance = $script:LastOutput | Where-Object { $_ -and (Test-Path $_) } | Select-Object -First 1
         }
         if ($anyInstance -and (Test-Path $VsInstaller)) {
-            # Visual Studio is present but without the C++ workload: add it.
-            Write-Info "Adding the C++ build tools to the existing Visual Studio at '$anyInstance' (a permission prompt will appear; this can take 10-20 minutes)."
-            $arguments = @('modify', '--installPath', "`"$anyInstance`"", '--add', 'Microsoft.VisualStudio.Workload.VCTools',
-                '--add', $component, '--includeRecommended', '--quiet', '--norestart', '--nocache')
-            Write-Log ('$ "{0}" {1}' -f $VsInstaller, ($arguments -join ' '))
-            try {
-                $process = Start-Process -FilePath $VsInstaller -ArgumentList $arguments -Verb RunAs -Wait -PassThru
-                Write-Log "[exit status $($process.ExitCode)]"
-                if ($RebootCodes -contains $process.ExitCode) { $script:RestartRequired = $true }
-            }
-            catch {
-                Write-Log "Visual Studio Installer failed to start: $_"
-                Add-Advice 'The Visual Studio Installer could not be started with administrator rights. Re-run the script and accept the permission prompt.'
-            }
+            # Visual Studio is present but lacks the C++ tools or the Windows
+            # SDK: modify it rather than installing a second copy.
+            $missing = @()
+            if (-not $instance) { $missing += 'the C++ build tools' }
+            if (-not $sdk) { $missing += 'the Windows SDK' }
+            Write-Info "Adding $($missing -join ' and ') to the existing Visual Studio at '$anyInstance' (a permission prompt will appear; this can take 10-20 minutes)."
+            Invoke-VsInstallerModify $anyInstance
         }
         else {
             Write-Info 'Installing the Visual Studio Build Tools with the C++ workload (about 6 GB; this can take 10-30 minutes).'
-            $override = "--wait --quiet --norestart --nocache --add Microsoft.VisualStudio.Workload.VCTools --add $component --includeRecommended"
+            $override = "--wait --quiet --norestart --nocache --add Microsoft.VisualStudio.Workload.VCTools --add $(Get-VcToolsComponent) --includeRecommended"
             Install-WingetPackage 'Microsoft.VisualStudio.2022.BuildTools' -Override $override | Out-Null
         }
         $instance = Get-VcToolsInstance
+        $sdk = Get-WindowsSdkVersion
+        if ($instance -and -not $sdk) {
+            # Fall back to the standalone SDK if the installer did not add one.
+            Write-Info 'Installing the standalone Windows SDK.'
+            Install-WingetPackage 'Microsoft.WindowsSDK.10.0.26100' | Out-Null
+            $sdk = Get-WindowsSdkVersion
+        }
     }
 
     if (-not $instance) {
@@ -638,13 +668,13 @@ function Invoke-BuildToolsStep {
         return
     }
 
-    $sdk = Get-WindowsSdkVersion
     if (-not $sdk) {
-        Add-Result FAIL 'No complete Windows 10/11 SDK was found (Windows.h and kernel32.lib).'
-        Add-Advice 'In the Visual Studio Installer choose Modify > Individual components and tick the latest "Windows 11 SDK", then re-run this script.'
+        Add-Result FAIL 'No complete Windows 10/11 SDK was found (Windows.h and kernel32.lib), so Clang cannot compile or link anything.'
+        Add-Advice 'Install the Windows SDK: re-run this script without -CheckOnly and accept the permission prompt, or in the Visual Studio Installer choose Modify > Individual components and tick the latest "Windows 11 SDK". Running "winget install --id Microsoft.WindowsSDK.10.0.26100" also works.'
         return
     }
     $msvcVersion = if ($linker -match 'MSVC\\([^\\]+)\\') { $Matches[1] } else { 'unknown version' }
+    $script:BuildToolsOk = $true
     Add-Result PASS "MSVC $msvcVersion and Windows SDK $sdk are installed."
 }
 
@@ -682,6 +712,8 @@ int main()
     Set-Content -Path $Path -Value $source -Encoding ASCII
 }
 
+$script:CompilerOk = $false
+
 function Invoke-CompilerStep {
     Start-Step 'LLVM / Clang C++ compiler'
 
@@ -714,10 +746,13 @@ function Invoke-CompilerStep {
     if ((Invoke-Logged $clang @('-std=c++20', '-Wall', '-Wextra', '-o', $binary, $source)) -ne 0) {
         Show-LastOutput
         Add-Result FAIL "clang++ $version could not compile a C++20 test program."
-        if (Test-LastOutput 'STL1000|Unexpected compiler version') {
+        if (-not $script:BuildToolsOk) {
+            Add-Advice 'This is caused by the Visual Studio Build Tools problem reported above (Clang uses their headers and libraries). Fix that step first.'
+        }
+        elseif (Test-LastOutput 'STL1000|Unexpected compiler version') {
             Add-Advice "Clang $version is too old for the installed MSVC standard library. Upgrade LLVM with: winget upgrade --id LLVM.LLVM"
         }
-        elseif (Test-LastOutput "(?i)unable to find a Visual Studio|'(iostream|vector|string)' file not found") {
+        elseif (Test-LastOutput "(?i)unable to find a Visual Studio|'[a-z_./]+(\.h)?' file not found") {
             Add-Advice 'Clang cannot find the MSVC headers. Make sure the Visual Studio Build Tools step passed ("Desktop development with C++").'
         }
         elseif (Test-LastOutput '(?i)(kernel32|msvcrt|libcmt|oldnames|ucrt)[a-z]*\.lib|LNK1104|cannot open file') {
@@ -735,10 +770,12 @@ function Invoke-CompilerStep {
         return
     }
     if ($version -and $version.Major -lt $MinClangMajor) {
+        $script:CompilerOk = $true
         Add-Result WARN "clang++ $version works, but version $MinClangMajor or newer is recommended."
         Add-Advice 'Upgrade LLVM with: winget upgrade --id LLVM.LLVM'
     }
     else {
+        $script:CompilerOk = $true
         Add-Result PASS "clang++ $version compiles and runs C++20 code ($clang)."
     }
 }
@@ -933,6 +970,10 @@ function Invoke-SmokeTestStep {
         Add-Advice 'Fix the failed steps above first; this test needs CMake, Ninja and Clang.'
         return
     }
+    if (-not $script:CompilerOk) {
+        Add-Result FAIL 'Not run, because Clang cannot compile programs yet (see the compiler step above).'
+        return
+    }
 
     $directory = Join-Path $WorkDir 'smoke-project'
     Write-SmokeProject $directory
@@ -976,15 +1017,18 @@ function Invoke-ProjectStep {
         return
     }
     $cmake = Get-Command cmake -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
-    if (-not $cmake) {
-        Add-Result FAIL 'Not run, because CMake is missing.'
+    if (-not $cmake -or -not $script:CompilerOk) {
+        Add-Result FAIL 'Not run, because CMake or a working Clang is missing (see the steps above).'
         return
     }
-    $configureArgs = @('--preset', 'clang')
+    # Build in a temporary folder so the student's own build folder (and its
+    # cache) is never touched, even in check-only mode.
+    $buildDir = Join-Path $WorkDir 'project-build'
+    $configureArgs = @('--preset', 'clang', '-B', $buildDir)
     if (-not (Test-Path (Join-Path $Project 'CMakePresets.json'))) {
         Add-Result WARN 'The project has no CMakePresets.json; using equivalent command-line settings.'
         Add-Advice 'Copy CMakePresets.json from the IB9JHO environment-setup repository into the project so VS Code picks Clang and Ninja automatically.'
-        $configureArgs = @('-S', '.', '-B', 'build', '-G', 'Ninja', '-DCMAKE_BUILD_TYPE=Debug', '-DCMAKE_C_COMPILER=clang', '-DCMAKE_CXX_COMPILER=clang++')
+        $configureArgs = @('-S', '.', '-B', $buildDir, '-G', 'Ninja', '-DCMAKE_BUILD_TYPE=Debug', '-DCMAKE_C_COMPILER=clang', '-DCMAKE_CXX_COMPILER=clang++')
     }
     Push-Location $Project
     try {
@@ -994,7 +1038,7 @@ function Invoke-ProjectStep {
             Add-ConfigureAdvice
             return
         }
-        if ((Invoke-Logged $cmake.Source @('--build', 'build')) -ne 0) {
+        if ((Invoke-Logged $cmake.Source @('--build', $buildDir)) -ne 0) {
             Show-LastOutput 25
             Add-Result FAIL 'The project configured but did not build.'
             Add-Advice "The tool chain works (see the end-to-end test), so this is most likely an error in the project's own code; read the compiler errors above."
@@ -1014,8 +1058,8 @@ function Invoke-ProjectStep {
 function Write-Summary {
     Write-Host ''
     Write-Host '==> Summary' -ForegroundColor Cyan
-    Write-Log ('=' * 64)
-    Write-Log 'SUMMARY'
+    Write-SetupLog ('=' * 64)
+    Write-SetupLog 'SUMMARY'
     $failures = 0
     $warnings = 0
     foreach ($result in $script:Results) {
@@ -1024,14 +1068,14 @@ function Write-Summary {
         if ($result.Status -eq 'WARN') { $warnings++ }
         Write-Host ('  {0,-4}' -f $result.Status) -ForegroundColor $colour -NoNewline
         Write-Host ('  {0,-50} {1}' -f $result.Step, $result.Detail)
-        Write-Log "$($result.Status)  $($result.Step): $($result.Detail)"
+        Write-SetupLog "$($result.Status)  $($result.Step): $($result.Detail)"
     }
     if ($script:Advice.Count -gt 0) {
         Write-Host ''
         Write-Host 'What to do next:' -ForegroundColor White
         foreach ($item in $script:Advice) { Write-Host "  - $item" }
     }
-    Write-Log "Final PATH=$env:Path"
+    Write-SetupLog "Final PATH=$env:Path"
     Write-ToolInventory
 
     Write-Host ''
@@ -1057,7 +1101,7 @@ function Write-Summary {
 
 Write-Host "$ScriptName $ScriptVersion" -ForegroundColor White
 Write-Host "Logging to $LogFile"
-Write-Log "$ScriptName $ScriptVersion"
+Write-SetupLog "$ScriptName $ScriptVersion"
 
 $exitCode = 1
 try {
@@ -1080,8 +1124,8 @@ try {
 }
 catch {
     # An unexpected script error: record everything needed to diagnose it.
-    Write-Log "UNEXPECTED ERROR: $_"
-    Write-Log $_.ScriptStackTrace
+    Write-SetupLog "UNEXPECTED ERROR: $_"
+    Write-SetupLog $_.ScriptStackTrace
     Write-Host "Unexpected error: $_" -ForegroundColor Red
     Write-Host "Please send the log file to your instructor: $LogFile"
     $exitCode = 1
