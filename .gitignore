@@ -1,5 +1,6 @@
 build/
 output/
 .vscode/settings.json
+CMakeUserPresets.json
 tests/IO/*
-!tests/IO/correct_output.txt
+!tests/IO/correct_output.txt

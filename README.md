@@ -2,10 +2,10 @@
 
 Follow these instructions to set up your programming environment for IB9JHO and check it works correctly.
 
-- Set up a local environment on your own device (recommended) - see [local environment setup](local-setup.md)
+- Set up a local environment on your own device (recommended) - see [local environment setup](local-setup.md), which provides a setup script for Windows, macOS and Linux
 - Open a codespace in the cloud - see [cloud back up environment](cloud-backup.md)
 
-You are recommended to use your own device for programming because it is much faster, not limited on computing resources, and available offline. You should only use a codespace as a backup/temporary option. Furthermore you should always select the **clang compiler** when prompted while you are working on IB9JHO. This ensures we are all using the same/similar build tools for C++.
+You are recommended to use your own device for programming because it is much faster, not limited on computing resources, and available offline. You should only use a codespace as a backup/temporary option. Furthermore you should always select the **Clang (IB9JHO)** configure preset when prompted while you are working on IB9JHO. This ensures we are all using the same/similar build tools for C++.
 
 # Check your environment works
 
@@ -23,7 +23,7 @@ You can also download the repository in a zip archive, but you should generally 
 Open the folder with Visual Studio Code and follow the instructions below.
 
 1. **Open the cmake tab** This will show you the various executable programs you can build from the source files in your project.
-2. **Check that the clang kit is selected** We will all use the same build tools in the course to avoid any confusion/compatibility issues.
+2. **Check that the Clang (IB9JHO) configure preset is selected** The preset is defined in `CMakePresets.json` and selects Clang and Ninja, so we all use the same build tools in the course and avoid any confusion/compatibility issues. If VS Code has not asked you to choose one, click the configure preset in the CMake tab and pick **Clang (IB9JHO)**.
 3. **Check that my_program is selected** as the launch target.
 4. **Click the play button** to compile and run the launch target you selected (my_program).
 5. **Click the terminal tab** This is where standard output will be displayed.
