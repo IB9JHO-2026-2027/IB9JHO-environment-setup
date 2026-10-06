@@ -1,6 +1,6 @@
-# This file tells CMake what to build: which programs to make from which source
-# files, and which tests to run. CMake reads it and generates the build files
-# that Ninja then uses to compile your code.
+# This file tells CMake what to build: which source files make up each
+# program, which C++ standard to use and which tests to run. CMake reads it and
+# generates the build files that Ninja then uses to compile your code.
 
 # 3.21 is the first version that reads version 3 CMakePresets.json files.
 cmake_minimum_required(VERSION 3.21)
