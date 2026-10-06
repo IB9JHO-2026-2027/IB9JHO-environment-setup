@@ -133,16 +133,14 @@ sudo apt install git clang build-essential cmake ninja-build gdb
 
 Install VS Code from <https://code.visualstudio.com/download> and the extensions listed above from its Extensions tab.
 
-## For instructors: diagnosing a failed setup
+## Diagnosing a failed setup
 
-Ask the student for their log file (or run the script on their machine with `--check-only`, which changes nothing). The log is plain text:
+Check log file (or run the script on their machine with `--check-only`, which changes nothing). The log is plain text:
 
 - `STEP` lines mark the start of each stage, in the order listed in the summary.
 - `$` lines are the exact commands run, followed by their complete output and an `[exit status N]` line.
 - `PASS`, `WARN`, `FAIL` and `ADVICE` lines record each result and the advice shown to the student.
 - An *environment snapshot* records `PATH`, compiler-related variables and every copy of each tool found on `PATH`, which exposes most "wrong tool picked up" problems.
-
-To test a specific student repository, add `--project <folder>` (`-Project <folder>`): the script builds it with the same preset after checking the tool chain, separating tool problems from code problems.
 
 Common problems the script recognises and explains:
 
@@ -162,5 +160,3 @@ The *Environment setup scripts* GitHub Actions workflow runs on every pull reque
 
 - runs each setup script on Windows, macOS (Apple Silicon and Intel) and Ubuntu (22.04 and 24.04, from a clean install), and
 - clones every lab solution (`*-solutions`) and public example repository in the organisation and builds and tests each one on Windows, macOS and Linux with the installed tool chain (`scripts/test-course-repos.sh`). Benchmarks (CTest tests whose name contains "bench") are never run. Lab starter repositories, assignments and templates are skipped, as their tests are meant to fail until students complete them.
-
-The lab solutions and examples are public, so the workflow needs no extra token or secret. If a solutions repository is made private again, it silently drops out of the run.
