@@ -67,3 +67,11 @@ ctest --preset clang
 ```
 
 If a test fails, its output names the first line that differs and shows the expected and actual text in quotes, so that missing or extra spaces are easy to spot. Everything your program printed is saved in `build/tests/program_output.txt`.
+
+Once you have pushed your final submission with all the tests passing, the red cross next to your latest commit on GitHub changes to a green tick. Then you can be confident your assignment is complete and your answers are correct.
+
+**Tests are *not* passing yet**
+<br>![tests_not_passing_repo](test_not_passing.png)<br>
+
+**Tests are passing**
+<br>![tests_passing_in_repo](https://github.com/Aurashk/test_vscode/assets/9390150/2c339c18-a7e3-4183-bcf5-8a1299e4b9e9)<br>
