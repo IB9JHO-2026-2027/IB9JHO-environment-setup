@@ -9,13 +9,9 @@
 
 name: Environment setup scripts
 
+# Runs on pull requests that touch the scripts, weekly, and on demand; pushes
+# to main are not tested again, as every change reaches main through a PR.
 on:
-  push:
-    branches: [main]
-    paths:
-      - "scripts/**"
-      - "CMakePresets.json"
-      - ".github/workflows/environment-setup.yml"
   pull_request:
     paths:
       - "scripts/**"
