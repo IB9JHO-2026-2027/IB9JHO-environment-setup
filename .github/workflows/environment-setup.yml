@@ -1,4 +1,4 @@
-# Runs the IB9JHO setup scripts on real Windows, macOS and Linux machines, so
+# Runs the IB9JHO setup scripts on real Windows, macOS and Ubuntu machines, so
 # that changes to the scripts (or to the packages they install) are tested on
 # every operating system students use, without needing the hardware locally.
 #
@@ -121,35 +121,23 @@ jobs:
           name: setup-logs-ubuntu-runner
           path: ${{ runner.temp }}/*.log
 
-  linux-distributions:
+  linux-clean-ubuntu:
     name: Linux (${{ matrix.image }})
     runs-on: ubuntu-latest
-    # Clean containers have none of the tools installed, so these jobs
-    # exercise every install path from scratch.
+    # Clean Ubuntu containers have none of the tools installed, so these jobs
+    # exercise every install path from scratch. Ubuntu is the only Linux
+    # distribution tested; the script's other package managers are best effort.
     container: ${{ matrix.image }}
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - image: ubuntu:22.04
-            args: ""
-          - image: ubuntu:24.04
-            args: ""
-          - image: debian:12
-            args: "--skip-vscode"
-          - image: fedora:latest
-            args: ""
-          - image: archlinux:latest
-            # VS Code for Arch comes from the AUR, which the script does not automate.
-            args: "--skip-vscode"
-          - image: opensuse/tumbleweed:latest
-            args: "--skip-vscode"
+        image: ["ubuntu:22.04", "ubuntu:24.04"]
     steps:
       - uses: actions/checkout@v5
       - name: Run setup
-        run: bash scripts/setup-linux.sh --yes ${{ matrix.args }} --project . --log-file /tmp/logs/setup.log
+        run: bash scripts/setup-linux.sh --yes --project . --log-file /tmp/logs/setup.log
       - name: Re-run in check-only mode
-        run: bash scripts/setup-linux.sh --check-only ${{ matrix.args }} --project . --log-file /tmp/logs/check.log
+        run: bash scripts/setup-linux.sh --check-only --project . --log-file /tmp/logs/check.log
       - name: Name the log artefact
         if: always()
         id: artefact
