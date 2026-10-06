@@ -1,11 +1,16 @@
-# Add directory containing Catch2 header
-include_directories(${CMAKE_SOURCE_DIR}/extern/catch2)
+# Output test for the environment check.
+#
+# The check_output test runs my_program and compares what it prints with
+# tests/IO/correct_output.txt. The comparison is done by compare_output.cmake
+# rather than a shell command, so it behaves identically on Windows, macOS and
+# Linux, including when the repository is stored in a folder whose path
+# contains spaces.
 
-# expose project root directory to source code so it can find the files
-add_definitions(-DPROJECT_ROOT_DIR="${CMAKE_SOURCE_DIR}")
-
-set(SRC_FILES test_main.cpp compare_files.cpp capture_output.cpp)
-
-add_executable(test_main ${SRC_FILES})
-target_link_libraries(test_main)
-add_test(NAME test_main COMMAND test_main)
+add_test(
+    NAME check_output
+    COMMAND ${CMAKE_COMMAND}
+        -DPROGRAM=$<TARGET_FILE:my_program>
+        -DEXPECTED=${CMAKE_CURRENT_SOURCE_DIR}/IO/correct_output.txt
+        -DACTUAL=${CMAKE_CURRENT_BINARY_DIR}/program_output.txt
+        -P ${CMAKE_CURRENT_SOURCE_DIR}/compare_output.cmake
+)
