@@ -92,6 +92,8 @@ If you used an earlier version of these instructions, delete any `.vscode/settin
 | Debugger | included in the VS Code C/C++ extension | LLDB | GDB |
 | Editor | VS Code | VS Code | VS Code (official .deb/.rpm) |
 
+All three compilers are Clang, the C/C++ front end of the LLVM project, so they accept the same code and options. They differ in who builds them and in the C++ standard library they use: Microsoft's on Windows, LLVM's libc++ in Apple's own build of Clang on macOS, and GCC's libstdc++ on Linux. Occasionally code compiles on one platform but not another because one standard library happens to include a header (such as `<cmath>`) that another does not, so always include every header you use.
+
 VS Code extensions: `ms-vscode.cpptools`, `ms-vscode.cpptools-extension-pack`, `ms-vscode.cmake-tools`, `brobeson.ctest-lab` and `github.vscode-github-actions`.
 
 After each installation the script runs a test (for example, compiling and running a C++20 program, or making a Git commit in a temporary folder). The last step configures, builds and tests a small CMake project with the same preset VS Code uses.
