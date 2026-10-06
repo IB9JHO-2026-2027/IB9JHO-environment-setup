@@ -18,7 +18,7 @@ If you are not working in a codespace you should first download the repository f
 \* Note that you can copy the correct link from the github page by clicking the green code button, selecting clone, and coping the https link.
 
 ```
-git clone *https://github.com/repo-owner/repo-name folder\to\clone\to
+git clone *https://github.com/IB9JHO-2026-2027/IB9JHO-environment-setup.git folder\to\clone\to
 ```
 
 You can also download the repository in a zip archive, but you should generally use git clone when you are working with repositories.
