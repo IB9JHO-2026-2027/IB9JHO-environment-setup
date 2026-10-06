@@ -37,7 +37,7 @@ Assignments are marked automatically using tests which check the output of your 
 
 1. **Open the test tab** This will show you all the tests available for the project.
 2. **Click the play button** to run a test
-3. **Check the output** The output of the test will be displayed in the output tab. Notice that it says the two files (tests/IO/correct_output.txt and tests/IO/expected_output.txt) are not the same.
+3. **Check the output** The output of the test will be displayed in the output tab. Notice that it reports which line of your program's output differs from tests/IO/correct_output.txt, showing the expected and actual text.
 4. **Correct the code** Correct the code and rerun the test to see that it passes.
 
 <br>![running_tests](test.png)<br>

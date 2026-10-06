@@ -3,7 +3,7 @@
         {
             "name": "Check All Tests Passed",
             "setup": "bash ./.github/workflows/build_and_test.sh",
-            "run": "grep 'All tests passed' build/Testing/Temporary/LastTest.log && exit 0 || exit 1",
+            "run": "ctest --test-dir build --output-on-failure",
             "timeout": 10,
             "points": 1
         }
