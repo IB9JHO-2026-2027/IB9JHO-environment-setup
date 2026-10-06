@@ -1,6 +1,7 @@
+# Build output
 build/
 output/
+
+# Personal editor and CMake settings
 .vscode/settings.json
 CMakeUserPresets.json
-tests/IO/*
-!tests/IO/correct_output.txt

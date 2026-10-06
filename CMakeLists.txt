@@ -1,22 +1,33 @@
-# Minimum required version of CMake
-cmake_minimum_required(VERSION 3.14)
+# IB9JHO environment check.
+#
+# Targets:
+#   my_program  - src/main.cpp, the program that checks the tool chain works
+#
+# Its output is checked by the check_output CTest test (see tests/).
+#
+# Configure, build and test with the shared "clang" preset (CMakePresets.json):
+#   cmake --preset clang && cmake --build --preset clang && ctest --preset clang
 
-# Project name
-project(MyProgram)
+# 3.21 is the first version that reads version 3 CMakePresets.json files.
+cmake_minimum_required(VERSION 3.21)
 
-# Set C/C++ standards
+# All course code is C++. C is enabled only because the shared "clang" preset
+# also sets CMAKE_C_COMPILER, which CMake would otherwise report as unused.
+project(IB9JHO_Environment_Setup LANGUAGES C CXX)
+
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
-add_compile_options(-Wall -Wextra)
+# Enable the common warnings, using the spelling the compiler front end expects
+# (clang-cl and MSVC take /W4; Clang, AppleClang and GCC take -Wall -Wextra).
+if(CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
+    add_compile_options(/W4)
+else()
+    add_compile_options(-Wall -Wextra)
+endif()
 
-# Define source files
-set(SRC_FILES src/main.cpp)
-
-# Define the executable
-add_executable(my_program ${SRC_FILES})
-
-####################### TESTING STUFF STARTS HERE ###########################################################
+add_executable(my_program src/main.cpp)
 
 enable_testing()
 add_subdirectory(tests)
