@@ -3,9 +3,12 @@
 Follow these instructions to set up your programming environment for IB9JHO and check it works correctly.
 
 - Set up a local environment on your own device (recommended) - see [local environment setup](local-setup.md), which provides a setup script for Windows, macOS and Linux
-- Open a codespace in the cloud - see [cloud back up environment](cloud-backup.md)
 
-You are recommended to use your own device for programming because it is much faster, not limited on computing resources, and available offline. You should only use a codespace as a backup/temporary option. Furthermore you should always select the **Clang (IB9JHO)** configure preset when prompted while you are working on IB9JHO. This ensures we are all using the same/similar build tools for C++.
+You are recommended to use your own device for programming because it is much faster, not limited on computing resources, and available offline. You can use a Codespace as a backup/temporary option. 
+
+- **Only as a temporary measure** Open a codespace in the cloud - see [cloud back up environment](cloud-backup.md)
+
+Always select the **Clang (IB9JHO)** configure preset when prompted while you are working on IB9JHO. This ensures we are all using the same/similar build tools for C++.
 
 # Check your environment works
 
