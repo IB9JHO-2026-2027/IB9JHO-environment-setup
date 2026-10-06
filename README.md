@@ -62,7 +62,7 @@ If you have chosen to keep your email address private on GitHub, use the `@users
 
 ## Signing in to GitHub
 
-Your course and assignment repositories are private, so Git needs to sign in to GitHub as you before you can clone or push them. You must use the GitHub account that has access to the repository: for an assignment, the account you accepted it with; for other course repositories, the account that accepted the invitation to the course organisation.
+Your course and assignment repositories are private, so Git needs to sign in to GitHub to identify you before you can clone or push them. You must use the GitHub account that has access to the repository: for an assignment, the account you accepted it with; for other course repositories, the account that accepted the invitation to the course organisation.
 
 - **In VS Code (recommended):** the first time you clone, pull or push, VS Code asks you to sign in with GitHub. Click **Allow** and complete the sign-in in your browser. You can also sign in beforehand from the *Accounts* icon at the bottom of the left-hand bar.
 - **In a terminal on Windows:** Git for Windows opens a browser window to sign in the first time it needs to.
