@@ -1,12 +1,6 @@
-# IB9JHO environment check.
-#
-# Targets:
-#   my_program  - src/main.cpp, the program that checks the tool chain works
-#
-# Its output is checked by the check_output CTest test (see tests/).
-#
-# Configure, build and test with the shared "clang" preset (CMakePresets.json):
-#   cmake --preset clang && cmake --build --preset clang && ctest --preset clang
+# This file tells CMake what to build: which programs to make from which source
+# files, and which tests to run. CMake reads it and generates the build files
+# that Ninja then uses to compile your code.
 
 # 3.21 is the first version that reads version 3 CMakePresets.json files.
 cmake_minimum_required(VERSION 3.21)
