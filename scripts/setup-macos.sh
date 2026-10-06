@@ -926,7 +926,7 @@ print_summary() {
     printf '\nFull log: %s\n' "$LOG_FILE"
     if [[ $failures -eq 0 ]]; then
         say "${C_GREEN}${C_BOLD}Your IB9JHO environment is ready${C_RESET}$([[ $warnings -gt 0 ]] && echo " ($warnings warning(s) above)")."
-        say "Open a course repository in VS Code and select the 'Clang (IB9JHO)' preset when asked."
+        say "Open a course repository in VS Code and select the 'Clang Debug (IB9JHO)' preset when asked."
         [[ $CHECK_ONLY -eq 0 ]] && say "If 'brew', 'code' or 'cmake' are not found in an existing terminal, open a new terminal window."
         return 0
     fi

@@ -8,8 +8,8 @@
     "configurePresets": [
         {
             "name": "clang",
-            "displayName": "Clang (IB9JHO)",
-            "description": "Debug build using Clang and Ninja. The compilers are resolved from PATH, so the same preset works on Windows, macOS and Linux once the setup script has run.",
+            "displayName": "Clang Debug (IB9JHO)",
+            "description": "Debug build with Clang and Ninja, using the compilers on your PATH.",
             "generator": "Ninja",
             "binaryDir": "${sourceDir}/build",
             "cacheVariables": {
@@ -18,20 +18,43 @@
                 "CMAKE_CXX_COMPILER": "clang++",
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
             }
+        },
+        {
+            "name": "clang-release",
+            "displayName": "Clang Release (IB9JHO)",
+            "description": "Optimised release build with Clang and Ninja, using the compilers on your PATH.",
+            "inherits": "clang",
+            "binaryDir": "${sourceDir}/build-release",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
         }
     ],
     "buildPresets": [
         {
             "name": "clang",
-            "displayName": "Clang (IB9JHO)",
+            "displayName": "Clang Debug (IB9JHO)",
             "configurePreset": "clang"
+        },
+        {
+            "name": "clang-release",
+            "displayName": "Clang Release (IB9JHO)",
+            "configurePreset": "clang-release"
         }
     ],
     "testPresets": [
         {
             "name": "clang",
-            "displayName": "Clang (IB9JHO)",
+            "displayName": "Clang Debug (IB9JHO)",
             "configurePreset": "clang",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "clang-release",
+            "displayName": "Clang Release (IB9JHO)",
+            "configurePreset": "clang-release",
             "output": {
                 "outputOnFailure": true
             }

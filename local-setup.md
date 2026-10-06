@@ -71,7 +71,7 @@ IB9JHO repositories contain a `CMakePresets.json` file that tells VS Code to bui
 
 1. Open the repository folder in VS Code (*File > Open Folder...*).
 2. If VS Code asks whether you trust the authors, choose **Yes**.
-3. When the CMake extension asks you to **select a configure preset**, choose **Clang (IB9JHO)**. You can change it later from the CMake tab.
+3. When the CMake extension asks you to **select a configure preset**, choose **Clang Debug (IB9JHO)**. You can change it later from the CMake tab. Choose **Clang Release (IB9JHO)** instead when you want an optimised build, for example to time your code; it builds into a separate `build-release` folder.
 
 If you used an earlier version of these instructions, delete any `.vscode/settings.json` you created in your course repositories: its old compiler paths can override the preset.
 

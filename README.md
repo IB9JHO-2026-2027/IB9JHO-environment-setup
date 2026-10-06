@@ -8,7 +8,7 @@ You are recommended to use your own device for programming because it is much fa
 
 - **Only as a temporary measure**: Open a codespace in the cloud - see [cloud back up environment](cloud-backup.md)
 
-Always select the **Clang (IB9JHO)** configure preset when prompted while you are working on IB9JHO. This ensures we are all using the same/similar build tools for C++.
+Always select the **Clang Debug (IB9JHO)** configure preset when prompted while you are working on IB9JHO. This ensures we are all using the same/similar build tools for C++.
 
 # Check your environment works
 
@@ -26,7 +26,7 @@ You can also download the repository in a zip archive, but you should generally 
 Open the folder with Visual Studio Code and follow the instructions below.
 
 1. **Open the cmake tab** This will show you the various executable programs you can build from the source files in your project.
-2. **Check that the Clang (IB9JHO) configure preset is selected** The preset is defined in `CMakePresets.json` and selects Clang and Ninja, so we all use the same build tools in the course and avoid any confusion/compatibility issues. If VS Code has not asked you to choose one, click the configure preset in the CMake tab and pick **Clang (IB9JHO)**.
+2. **Check that the Clang Debug (IB9JHO) configure preset is selected** The preset is defined in `CMakePresets.json` and selects Clang and Ninja, so we all use the same build tools in the course and avoid any confusion/compatibility issues. If VS Code has not asked you to choose one, click the configure preset in the CMake tab and pick **Clang Debug (IB9JHO)**.
 3. **Check that my_program is selected** as the launch target.
 4. **Click the play button** to compile and run the launch target you selected (my_program).
 5. **Click the terminal tab** This is where standard output will be displayed.

@@ -1118,7 +1118,7 @@ function Write-Summary {
     if ($failures -eq 0) {
         $suffix = if ($warnings -gt 0) { " ($warnings warning(s) above)" } else { '' }
         Write-Host "Your IB9JHO environment is ready$suffix." -ForegroundColor Green
-        Write-Host "Open a course repository in VS Code and select the 'Clang (IB9JHO)' preset when asked."
+        Write-Host "Open a course repository in VS Code and select the 'Clang Debug (IB9JHO)' preset when asked."
         if (-not $CheckOnly) { Write-Host 'Close and reopen any terminals and VS Code windows so they pick up the updated PATH.' }
         return 0
     }

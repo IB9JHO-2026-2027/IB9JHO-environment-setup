@@ -1,6 +1,6 @@
 # How to use a Codespace to work on IB9JHO
 Please note that:
-- You should always select the **Clang (IB9JHO)** configure preset when prompted while you are working on IB9JHO. This ensures we are all using the same build tools.
+- You should always select the **Clang Debug (IB9JHO)** configure preset when prompted while you are working on IB9JHO. This ensures we are all using the same build tools.
 - Your work on a codespace will be saved even when you close it down, but they do expire after a period of time. You should
    push your changes to the repository regularly (see [this section](#pushing-your-changes-to-github)) to avoid losing your work. 
 - You should NOT create multiple codespaces to work on the same repository as this drains resources for no reason. You should create a single codespace and close/re-open it when needed.
