@@ -42,7 +42,7 @@ curl -fsSL https://raw.githubusercontent.com/IB9JHO-2026-2027/IB9JHO-environment
 bash setup-linux.sh
 ```
 
-Ubuntu, Debian, Fedora, Arch and openSUSE are supported. If `curl` is not installed, use `wget -O setup-linux.sh <url>` instead. On **WSL**, run the Linux script inside WSL and the Windows script on Windows (VS Code itself lives on Windows).
+Ubuntu is supported and tested. The script also works with Debian, Fedora, Arch and openSUSE package managers on a best-effort basis. If `curl` is not installed, use `wget -O setup-linux.sh <url>` instead. On **WSL**, run the Linux script inside WSL and the Windows script on Windows (VS Code itself lives on Windows).
 
 ### When it finishes
 
@@ -158,7 +158,7 @@ Common problems the script recognises and explains:
 
 The *Environment setup scripts* GitHub Actions workflow runs on every change to the scripts, weekly, and on demand (Actions > Environment setup scripts > Run workflow). It:
 
-- runs each setup script on Windows, macOS (Apple Silicon and Intel) and several Linux distributions, and
+- runs each setup script on Windows, macOS (Apple Silicon and Intel) and Ubuntu (22.04 and 24.04, from a clean install), and
 - clones every lab solution (`*-solutions`) and public example repository in the organisation and builds and tests each one on Windows, macOS and Linux with the installed tool chain (`scripts/test-course-repos.sh`). Benchmarks (CTest tests whose name contains "bench") are never run. Lab starter repositories, assignments and templates are skipped, as their tests are meant to fail until students complete them.
 
 The lab solutions and examples are public, so the workflow needs no extra token or secret. If a solutions repository is made private again, it silently drops out of the run.
