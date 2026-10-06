@@ -156,7 +156,7 @@ Common problems the script recognises and explains:
 
 ## Continuous integration
 
-The *Environment setup scripts* GitHub Actions workflow runs on every change to the scripts, weekly, and on demand (Actions > Environment setup scripts > Run workflow). It:
+The *Environment setup scripts* GitHub Actions workflow runs on every pull request that changes the scripts, weekly, and on demand (Actions > Environment setup scripts > Run workflow). It:
 
 - runs each setup script on Windows, macOS (Apple Silicon and Intel) and Ubuntu (22.04 and 24.04, from a clean install), and
 - clones every lab solution (`*-solutions`) and public example repository in the organisation and builds and tests each one on Windows, macOS and Linux with the installed tool chain (`scripts/test-course-repos.sh`). Benchmarks (CTest tests whose name contains "bench") are never run. Lab starter repositories, assignments and templates are skipped, as their tests are meant to fail until students complete them.
