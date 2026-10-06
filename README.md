@@ -49,6 +49,30 @@ Assignments are marked automatically using tests which check the output of your 
 
 You should push (update) your repository on github regularly to make sure you don't lose any work. Especially if you are programming in a codespace. But keep in mind that it is not easy to reverse your changes once you have pushed them. You can also ask for feedback this way as the module tutor will have access to all the repositories.
 
+## Before your first commit: tell Git who you are
+
+Git records a name and email address with every commit, and refuses to commit until both are set. You only need to do this once per computer. Open a terminal (in VS Code: *Terminal > New Terminal*) and run, using your own name and the email address of your GitHub account:
+
+```
+git config --global user.name "Your Name"
+git config --global user.email "you@example.com"
+```
+
+If you have chosen to keep your email address private on GitHub, use the `@users.noreply.github.com` address shown under *GitHub > Settings > Emails* instead; otherwise GitHub may reject your push. You do not need to do this in a codespace, where it is set for you.
+
+## Signing in to GitHub
+
+Your course and assignment repositories are private, so Git needs to sign in to GitHub as you before you can clone or push them. You must use the GitHub account that has access to the repository: for an assignment, the account you accepted it with; for other course repositories, the account that accepted the invitation to the course organisation.
+
+- **In VS Code (recommended):** the first time you clone, pull or push, VS Code asks you to sign in with GitHub. Click **Allow** and complete the sign-in in your browser. You can also sign in beforehand from the *Accounts* icon at the bottom of the left-hand bar.
+- **In a terminal on Windows:** Git for Windows opens a browser window to sign in the first time it needs to.
+- **In a terminal on macOS or Linux:** install the [GitHub CLI](https://cli.github.com) (`brew install gh` on macOS) and run `gh auth login`, then `gh auth setup-git`. GitHub no longer accepts your account password on the command line.
+- **In a codespace:** you are already signed in.
+
+If cloning fails with *Repository not found*, or pushing fails with *Permission denied* or *403*, you are signed in with an account that does not have access (or you have not yet accepted the invitation). Check which account you are using; on Windows, a stale saved login can be removed under *Control Panel > Credential Manager > Windows Credentials* (the `git:https://github.com` entry), and on macOS under *Keychain Access* (search for `github.com`).
+
+## Committing and pushing
+
 1. **Open the source control tab** This will show you all the changes you have made to the repository.
 2. **Initialise the repository** To start tracking changes in the repository.
 3. **Add a commit message** Write a summary of the changes you made.
