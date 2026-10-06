@@ -6,16 +6,14 @@ A setup script does all of this for you. It installs whatever is missing, tests 
 
 ## 1. Run the setup script
 
-Pick your operating system and copy the commands into a terminal. The script is safe to run more than once: anything already installed is checked, not reinstalled.
+Pick your operating system, copy its one-line command (use the copy button at the right of the grey box) and paste it into a terminal. Paste only that line, not the rest of this page. The script is safe to run more than once: anything already installed is checked, not reinstalled.
 
 ### Windows
 
 Open **PowerShell** (Start menu, type *PowerShell*, press Enter; administrator mode is not needed) and run:
 
 ```powershell
-cd $HOME
-irm https://raw.githubusercontent.com/IB9JHO-2026-2027/IB9JHO-environment-setup/main/scripts/setup-windows.ps1 -OutFile setup-windows.ps1
-powershell -ExecutionPolicy Bypass -File .\setup-windows.ps1
+cd $HOME; irm https://raw.githubusercontent.com/IB9JHO-2026-2027/IB9JHO-environment-setup/main/scripts/setup-windows.ps1 -OutFile setup-windows.ps1 -ErrorAction Stop; powershell -ExecutionPolicy Bypass -File .\setup-windows.ps1
 ```
 
 Windows will ask for permission (a *User Account Control* prompt) when an installer needs it; click **Yes**. Installing the Visual Studio Build Tools can take 10-30 minutes.
@@ -25,9 +23,7 @@ Windows will ask for permission (a *User Account Control* prompt) when an instal
 Open **Terminal** (Finder > Applications > Utilities > Terminal) and run:
 
 ```bash
-cd ~
-curl -fsSL https://raw.githubusercontent.com/IB9JHO-2026-2027/IB9JHO-environment-setup/main/scripts/setup-macos.sh -o setup-macos.sh
-bash setup-macos.sh
+cd ~ && curl -fsSL https://raw.githubusercontent.com/IB9JHO-2026-2027/IB9JHO-environment-setup/main/scripts/setup-macos.sh -o setup-macos.sh && bash setup-macos.sh
 ```
 
 Enter your Mac login password when asked (nothing appears as you type). Your account must be an administrator account.
@@ -37,9 +33,7 @@ Enter your Mac login password when asked (nothing appears as you type). Your acc
 Open a terminal and run:
 
 ```bash
-cd ~
-curl -fsSL https://raw.githubusercontent.com/IB9JHO-2026-2027/IB9JHO-environment-setup/main/scripts/setup-linux.sh -o setup-linux.sh
-bash setup-linux.sh
+cd ~ && curl -fsSL https://raw.githubusercontent.com/IB9JHO-2026-2027/IB9JHO-environment-setup/main/scripts/setup-linux.sh -o setup-linux.sh && bash setup-linux.sh
 ```
 
 Ubuntu is supported and tested. The script also works with Debian, Fedora, Arch and openSUSE package managers on a best-effort basis. If `curl` is not installed, use `wget -O setup-linux.sh <url>` instead. On **WSL**, run the Linux script inside WSL and the Windows script on Windows (VS Code itself lives on Windows).
