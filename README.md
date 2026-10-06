@@ -58,11 +58,12 @@ You should push (update) your repository on github regularly to make sure you do
 
 # Submitting Assignments
 
-Once you have pushed to your repository for your final submission with all the tests passing you should notice the red cross will change to a green tick in
-github. Then you can be confident your assignment is complete and your answers were correct.
+Assignments are marked automatically by running the same tests you can run in VS Code. Before you submit, make sure every test passes on your own computer: run them from the Testing tab, or from a terminal:
 
-**Tests are *not* passing yet**
-<br>![tests_not_passing_repo](test_not_passing.png)<br>
+```
+cmake --preset clang
+cmake --build --preset clang
+ctest --preset clang
+```
 
-**Tests are passing**
-<br>![tests_passing_in_repo](https://github.com/Aurashk/test_vscode/assets/9390150/2c339c18-a7e3-4183-bcf5-8a1299e4b9e9)<br>
+If a test fails, its output names the first line that differs and shows the expected and actual text in quotes, so that missing or extra spaces are easy to spot. Everything your program printed is saved in `build/tests/program_output.txt`.
