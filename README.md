@@ -64,7 +64,3 @@ Assignments are marked automatically using tests which check the output of your 
 4. **Correct the code** Correct the code, click **Build** in the status bar, then rerun the test to see that it passes. Note that the test requires a rebuild because it compares the output of running your built program against the expected output.
 
 <br>![running_tests](test.png)<br>
-
-# Next step: the sample assignment
-
-Once your environment works, join the course in Classroom 50 using the link from your module tutor. After you have joined the roster, move on to the [Sample IB9JHO assignment](https://github.com/IB9JHO-2026-2027/Sample-IB9JHO-assignment), which shows you how to sign in to GitHub, push your work and submit an assignment.
