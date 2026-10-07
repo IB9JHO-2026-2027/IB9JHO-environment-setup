@@ -151,10 +151,10 @@ jobs:
     # broken repository (or a tool chain change that breaks one) is caught
     # before students meet it. Benchmarks are excluded from the test runs.
     #
-    # The lab solutions are private (readable by the class only), so listing
-    # and cloning them needs a token with read access to the organisation's
-    # repositories, stored as the COURSE_REPOS_TOKEN secret. Without it the
-    # workflow's own token is used and only the public examples are tested.
+    # The lab solutions and examples are private (readable by the class
+    # only), so listing and cloning them needs a token with read access to
+    # the organisation's repositories, stored as the COURSE_REPOS_TOKEN
+    # secret. Without it there is nothing this job can read, so it fails.
     name: Course repositories (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     strategy:
@@ -172,20 +172,20 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: Select repositories
-        # Every non-fork, unarchived repository that is either a lab solution
-        # (*-solutions, private) or public (the examples). Other private
-        # repositories, such as student assignment copies, are never selected.
-        # Lab starter repositories, assignments, templates and tooling
-        # repositories are excluded: their tests are meant to fail until
-        # students complete them.
+        # Every non-fork, unarchived repository: the lab solutions
+        # (*-solutions) and the examples. Excluded: student repositories
+        # created by Classroom 50 (named after the classroom), lab starter
+        # repositories, assignments, templates and tooling repositories, as
+        # their tests are meant to fail until students complete them.
         run: |
           if [ "$HAS_COURSE_TOKEN" != "true" ]; then
-            echo "::warning::The COURSE_REPOS_TOKEN secret is not set, so the private lab solutions cannot be read and only public repositories are tested."
+            echo "::error::The COURSE_REPOS_TOKEN secret is not set, so the private lab solutions and examples cannot be read."
+            exit 1
           fi
           gh api --paginate "orgs/$ORG/repos?per_page=100&type=all" \
-            --jq '.[] | select(.fork | not) | select(.archived | not)
-                  | select(.visibility == "public" or (.name | endswith("-solutions"))) | .name' > all-repos.txt
+            --jq '.[] | select(.fork | not) | select(.archived | not) | .name' > all-repos.txt
           awk '
+            tolower($0) ~ /^programming-for-quantitative-finance-/ { next }
             tolower($0) ~ /(assignment|environment-setup|group-project-template|classroom)/ { next }
             tolower($0) ~ /^lab[0-9]+$/ { next }
             { print }
