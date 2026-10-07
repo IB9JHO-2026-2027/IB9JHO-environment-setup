@@ -2,15 +2,15 @@
 
 Follow these instructions to set up your programming environment for IB9JHO and check it works correctly.
 
-**Optional, sign up for GitHub Education.** Apply for the free student benefits at [github.com/education/students](https://github.com/education/students) using your university email address. The benefits include free GitHub Pro.
-
 - Set up a local environment on your own device - see [local environment setup](local-setup.md), which provides a setup script for Windows, macOS and Linux
 
 You are recommended to use your own device for programming because it is much faster, not limited on computing resources, and available offline. You can use a Codespace as a backup/temporary option. 
 
-- **Only as a temporary measure when flexibility is needed**: Open a codespace in the cloud - see [cloud back up environment](cloud-backup.md)
+- **Only as a temporary measure when flexibility is needed**: Open a Codespace in the cloud - see [cloud back up environment](cloud-backup.md)
 
 Always select the **Clang Debug (IB9JHO)** configure preset when prompted while you are working on IB9JHO. This ensures we are all using the same/similar build tools for C++.
+
+- **Optional** Sign up for GitHub Education. Apply for the free student benefits at [github.com/education/students](https://github.com/education/students) using your university email address. The benefits include free GitHub Pro which gives you more cloud usage for Codespace's above.
 
 # Check your environment works
 
