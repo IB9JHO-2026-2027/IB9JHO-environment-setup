@@ -34,6 +34,28 @@ Open the folder with Visual Studio Code and follow the instructions below.
 
 <br>![compile_and_run](compile_and_run.png)<br>
 
+# Building your code
+
+Your code has to be compiled (built) before it can be run or tested, and it must be rebuilt every time you change it. Running a test does not rebuild your program, so a test will keep failing against the old version until you build again.
+
+**The CMake tab** shows what is set up for your project under **Project Status**:
+
+- **Configure**, **Build** and **Test** show the preset in use (Clang Debug (IB9JHO)).
+- **Build** also shows which targets will be compiled. `[Targets In Preset]` means every program in the project.
+- **Debug** and **Launch** show which program runs when you click the debug or play button.
+
+Hover over a row and click the pencil icon to change it.
+
+<br>![cmake_tab](cmake_tab.png)<br>
+
+**The status bar** at the bottom left of the window has the same actions as buttons:
+
+- **Build** compiles the current sources. Click it after every change to your code.
+- The **bug** icon builds the program and starts it in the debugger.
+- The **play** icon builds the program and runs it.
+
+<br>![status_bar](status_bar.png)<br>
+
 # Testing
 
 Assignments are marked automatically using tests which check the output of your code. The tests for this repository are initially failing because the output of our program is not what is expected. The correct output can be found in tests/IO/correct_output.txt.
@@ -41,7 +63,7 @@ Assignments are marked automatically using tests which check the output of your 
 1. **Open the test tab** This will show you all the tests available for the project.
 2. **Click the play button** to run a test
 3. **Check the output** The output of the test will be displayed in the output tab. Notice that it reports which line of your program's output differs from tests/IO/correct_output.txt, showing the expected and actual text.
-4. **Correct the code** Correct the code and rerun the test to see that it passes.
+4. **Correct the code** Correct the code, click **Build** in the status bar, then rerun the test to see that it passes.
 
 <br>![running_tests](test.png)<br>
 
