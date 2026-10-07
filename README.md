@@ -2,6 +2,8 @@
 
 Follow these instructions to set up your programming environment for IB9JHO and check it works correctly.
 
+**First, sign up for GitHub Education.** Apply for the free student benefits at [github.com/education/students](https://github.com/education/students) using your university email address. Approval can take a few days, so do this straight away. The benefits include free GitHub Pro, which gives you more Codespaces hours if you ever need the cloud backup environment below.
+
 - Set up a local environment on your own device - see [local environment setup](local-setup.md), which provides a setup script for Windows, macOS and Linux
 
 You are recommended to use your own device for programming because it is much faster, not limited on computing resources, and available offline. You can use a Codespace as a backup/temporary option. 
