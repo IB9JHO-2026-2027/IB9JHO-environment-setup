@@ -2,7 +2,7 @@
 
 Follow these instructions to set up your programming environment for IB9JHO and check it works correctly.
 
-- Set up a local environment on your own device (recommended) - see [local environment setup](local-setup.md), which provides a setup script for Windows, macOS and Linux
+- Set up a local environment on your own device - see [local environment setup](local-setup.md), which provides a setup script for Windows, macOS and Linux
 
 You are recommended to use your own device for programming because it is much faster, not limited on computing resources, and available offline. You can use a Codespace as a backup/temporary option. 
 
