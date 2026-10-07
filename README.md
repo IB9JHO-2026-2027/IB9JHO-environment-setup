@@ -10,7 +10,7 @@ You are recommended to use your own device for programming because it is much fa
 
 Always select the **Clang Debug (IB9JHO)** configure preset when prompted while you are working on IB9JHO. This ensures we are all using the same/similar build tools for C++.
 
-- **Optional** Sign up for GitHub Education. Apply for the free student benefits at [github.com/education/students](https://github.com/education/students) using your university email address. The benefits include free GitHub Pro which gives you more cloud usage for Codespace's above.
+- **Optional** Sign up for GitHub Education. Apply for the free student benefits at [github.com/education/students](https://github.com/education/students) using your university email address. The benefits include free GitHub Pro which gives you more cloud usage for Codespace's.
 
 # Check your environment works
 
